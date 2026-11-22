@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Webhooks</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="/styles.css">
+        <link rel="icon" type="image/png" href="https://warehouse.onepluscourierja.com/images/favicon/favicon-32x32.png" sizes="32x32" />
+        <link rel="icon" type="image/png" href="https://warehouse.onepluscourierja.com/images/favicon/favicon-16x16.png" sizes="16x16" />
+        <style>
+            a{
+                text-decoration:none
+            }
+            body {
+                background-color: #f8f9fa;
+                font-family: 'Segoe UI', sans-serif;
+            }
+            .card {
+                border-radius: 12px;
+            }
+            .section-title {
+                margin-top: 3rem;
+                margin-bottom: 1rem;
+            }
+            .endpoint {
+                font-family: monospace;
+                background: #e9ecef;
+                padding: 4px 8px;
+                border-radius: 6px;
+            }
+            .premium {
+                font-size: 0.875rem;
+                color: #d63384;
+                font-weight: 500;
+            }
+            nav li{
+                padding:4px;
+                margin-bottom:10px
+            }
+            h1 {
+                font-weight: 700;
+                color: #4b0082;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            h2 {
+                font-weight: 700;
+                color: #4b0082;
+                margin-top: 1.5rem;
+                margin-bottom: 1rem;
+            }
+            h3 {
+                font-weight: 600;
+                color: #4b0082;
+                margin-top: 1rem;
+                margin-bottom: 0.75rem;
+            }
+            label {
+                display: block;
+                margin: 1rem 0 0.5rem 0;
+                font-weight: 600;
+                color: #555;
+            }
+            input[type='text'],
+            input[type='number'],
+            select {
+                width: 100%;
+                padding: 0.5rem 0.75rem;
+                border: 2px solid #ddd;
+                border-radius: 6px;
+                font-size: 1rem;
+                transition: border-color 0.3s;
+            }
+            input[type='text']:focus,
+            input[type='number']:focus,
+            select:focus {
+                border-color: #764ba2;
+                outline: none;
+                box-shadow: 0 0 8px #a07ecf80;
+            }
+            button {
+                margin-top: 1.5rem;
+                background: #764ba2;
+                color: white;
+                font-weight: 600;
+                padding: 0.75rem 1.8rem;
+                font-size: 1.1rem;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            button:hover {
+                background: #4b0082;
+            }
+            .btn-success {
+                background: #28a745;
+            }
+            .btn-success:hover {
+                background: #218838;
+            }
+            pre {
+                background: #f6f8fa;
+                padding: 1rem;
+                border-radius: 8px;
+                margin-top: 1rem;
+                font-size: 0.9rem;
+                max-height: 400px;
+                overflow: auto;
+                border: 1px solid #ddd;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+            .instructions {
+                margin-top: 3rem;
+                border-top: 2px solid #764ba2;
+                padding-top: 2rem;
+                color: #333;
+            }
+            .instructions h2 {
+                color: #764ba2;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+            }
+            .tag {
+                display: inline-block;
+                background: #e1d7ff;
+                color: #4b0082;
+                font-weight: 700;
+                padding: 0.15rem 0.5rem;
+                border-radius: 5px;
+                font-size: 0.85rem;
+                margin-right: 0.5rem;
+                font-family: monospace;
+            }
+            ul {
+                margin-left: 1.25rem;
+            }
+            ul li {
+                margin-bottom: 0.4rem;
+                line-height: 1.4;
+            }
+            pre.example {
+                background: #efefff;
+                border-left: 5px solid #764ba2;
+                padding-left: 1rem;
+                font-family: monospace;
+                font-size: 0.9rem;
+                margin-bottom: 1rem;
+                overflow-x: auto;
+            }
+            .badge {
+                padding: 0.5rem 0.75rem;
+                border-radius: 6px;
+                font-weight: 500;
+                font-size: 0.85rem;
+            }
+            .badge-pending {
+                background-color: #ffc107;
+                color: #856404;
+            }
+            .badge-synced {
+                background-color: #28a745;
+                color: white;
+            }
+            .badge-matched {
+                background-color: #17a2b8;
+                color: white;
+            }
+            .alert {
+                margin-top: 1rem;
+                padding: 0.75rem;
+                border-radius: 6px;
+                display: none;
+            }
+            .alert.show {
+                display: block;
+            }
+            .info-box {
+                background: #e9ecef;
+                border-left: 4px solid #764ba2;
+                padding: 1rem;
+                margin: 1rem 0;
+                border-radius: 8px;
+            }
+        </style>
+    </head>
+    <body class="bg-light">
+        <div class="d-flex" id="wrapper">
+            <!-- Sidebar -->
+            <%- include("sidebar") %>
+
+            <!-- Page content -->
+            <div id="page-content" class="p-4 w-100">
+                <div id="alertMessage" class="alert"></div>
+
+                <div class="card shadow-sm rounded-4 p-4">
+                    <h4 class="mb-3">Overview</h4>
+                    <p>
+                        This interface allows you to create entries for <strong>CONSIGNEE</strong>, 
+                        <strong>PACKAGE</strong>, <strong>PREALERT</strong>, and <strong>COURIER</strong> sync types.
+                    </p>
+                    
+                    <div class="info-box">
+                        <strong><i class="bi bi-info-circle-fill"></i> New: PREALERT Webhooks</strong><br>
+                        PreAlert webhooks allow you to receive automatic updates when new pre-alerts are created, matched with existing packages, or synced with the warehouse system. 
+                        This is ideal for tracking incoming shipments and managing customs clearance processes.
+                    </div>
+
+                    <h3>CONSIGNEE Sync</h3>
+                    <p>
+                        <strong>CONSIGNEE</strong> pulls data from your system into the warehouse. Required fields are:
+                        <code>first_name</code>, <code>last_name</code>, and <code>mailbox</code>. 
+                        <br>
+                        The following fields are optional: <code>branch</code> and <code>email</code>.
+                    </p>
+                    <p>An array of objects is required. Active false will result in deletion.</p>
+                    <pre>[
+  {
+    "first_name": "John",
+    "last_name": "Doe",
+    "mailbox": "OZ122",
+    "branch": "KN(optional)",
+    "email": "john.doe@example.com(optional)",
+    "active": true
+  },
+  {
+    "first_name": "John 2",
+    "last_name": "Doe 2",
+    "mailbox": "OZ123",
+    "branch": "CL",
+    "email": "john2.doe2@example.com",
+    "active": true
+  }
+]</pre>
+
+                    <h3>PREALERT Sync <span class="badge badge-matched">NEW</span></h3>
+                    <p>
+                        <strong>PREALERT</strong> pushes pre-alert data to your system when new shipments are expected. 
+                        This includes tracking information, package details, and match scores with existing inventory.
+                    </p>
+                    <p><strong>PreAlert Data Structure:</strong></p>
+                    <pre>{
+  "prealerts": [
+    {
+      "uuid": "encrypted_unique_id",
+      "tracking_no": "TRK123456789",
+      "merchant": "Amazon",
+      "shipper": "John Doe",
+      "consignee": "Jane Smith",
+      "description": "Electronics and accessories",
+      "weight": 2.5,
+      "dimensions": "30x20x10",
+      "value": 150.00,
+      "package_type": "box",
+      "destination": "Kingston, Jamaica",
+      "expected_arrival": "2024-03-15T00:00:00.000Z",
+      "status": "pending",
+      "match_score": 85,
+      "match_level": "high",
+      "matched_package_id": "optional_matched_package_uuid",
+      "matched_at": "2024-03-10T12:00:00.000Z",
+      "courier_code": "RM",
+      "courier_id": "encrypted_courier_id",
+      "company_id": "encrypted_company_id",
+      "created_at": "2024-03-01T10:00:00.000Z",
+      "updated_at": "2024-03-10T12:00:00.000Z"
+    }
+  ]
+}</pre>
+
+                    <p><strong>PreAlert Status Values:</strong></p>
+                    <ul>
+                        <li><span class="badge badge-pending">pending</span> - PreAlert created but not yet processed</li>
+                        <li><span class="badge badge-matched">matched</span> - Matched with existing package in warehouse</li>
+                        <li><span class="badge badge-synced">synced</span> - Successfully synced with warehouse system</li>
+                        <li><span class="badge badge-pending">failed</span> - Sync failed, requires attention</li>
+                    </ul>
+
+                    <p><strong>Match Levels:</strong></p>
+                    <ul>
+                        <li><strong>high</strong> (80-100%) - Strong match, likely same package</li>
+                        <li><strong>medium</strong> (50-79%) - Possible match, requires review</li>
+                        <li><strong>low</strong> (0-49%) - Weak match, likely different package</li>
+                    </ul>
+
+                    <h3>COURIER Sync</h3>
+                    <p>
+                        <strong>COURIER</strong> pushes courier data to your system:
+                    </p>
+                    <pre>{
+  "courier": [
+    {
+      "courier_id": "fde8da959ad1ccf81d757a49d2952a52:65f1528292f5c21eab7099a8a11e0874",
+      "uuid": "persistent id",
+      "name": "RM COURIER U",
+      "created_at": "2025-05-31T13:24:18.000000Z",
+      "updated_at": "2025-06-07T05:14:56.000000Z",
+      "company_id": "ed482a845add91c6d82ff800f97ebd97:9ba6d7f9318d4f59022dce41bb7df719",
+      "isDeleted": 0,
+      "code": "RM",
+      "starting_number": 755,
+      "last_number": 785,
+      "collection_starting_number": 155,
+      "collection_last_number": 185
+    }
+  ]
+}</pre>
+
+                    <h3>PACKAGE Sync</h3>
+                    <p>
+                        <strong>PACKAGE</strong> pushes data to your system in the following format:
+                    </p>
+                    <pre>{
+  "packages": [
+    {
+      "package_id": "13659742cae82ab09d4447985c0b5701:59e70a6a89626addff0c840f6b9a2c52",
+      "uuid": "persistent id",
+      "tracking_number": "test008",
+      "description": "Merchandise",
+      "shipper": "OPC",
+      "consignee": "zahira clarke",
+      "weight": 1.60,
+      "received_date": "2025-10-06 00:00:00",
+      "status": "RECEIVED AT ORIGIN",
+      "courier_id": "d8ab2fddd1faa8c591b770a4b6f01471:4aa939e77d203e9204f958c3d2e06f99",
+      "last_synced": "2025-10-07 01:24:12",
+      "created_at": "2025-10-07T01:24:12.000000Z",
+      "updated_at": "2025-10-08T23:46:43.000000Z",
+      "created_by": 1,
+      "updated_by": 1,
+      "company_id": "b750561c0770035db73d9efd2d5d489a:654afbb62d6f887dafd38989ed9d018c",
+      "isDeleted": 0,
+      "insurance_value": null,
+      "shipping_cost": null,
+      "dimensions": null,
+      "origin": null,
+      "collection_id": "bb1e9e6e08125cfc0abe2f90e13a2005:7363776051470ed74cc9b5dc99fb9d00",
+      "destination": null,
+      "manifest_no": "YPE5522",
+      "notes": "RR",
+      "transfered": 0,
+      "mailbox": "YPE-017370",
+      "collection": {
+        "collection_number": "YPE8830",
+        "courier_id": 67,
+        "created_at": "2025-10-08T23:35:43.000Z",
+        "collection_type": "Bag",
+        "created_by": 1,
+        "shipment": {
+          "shipment_id": "13659742cae82ab09d4447985c0b5701:59e70a6a89626addff0c840f6b9a2c52",
+          "uuid": "persistent id",
+          "manifest_no": "kmklklmlklkm",
+          "origin": "4234234234",
+          "destination": "4234234234",
+          "delivered_date": "2025-10-08T00:00:00.000Z",
+          "expected_delivery_date": "2025-10-08T00:00:00.000Z",
+          "created_at": "2025-10-08T23:03:28.000Z",
+          "status": "RECEIVED AT ORIGIN",
+          "created_by": 1
+        }
+      }
+    }
+  ]
+}</pre>
+
+                    <h3>SHIPMENT Sync <span class="premium">(Premium Feature)</span></h3>
+                    <p>
+                        <strong>SHIPMENT</strong> pushes shipment data to your system:
+                    </p>
+                    <pre>{
+  "shipment": [
+    {
+      "uuid": "persistent id",
+      "manifest_no": "ewadas2212323",
+      "status": "RECEIVED AT ORIGIN",
+      "origin": "ewadas2212323",
+      "destination": "ewadas2212323",
+      "total_weight": null,
+      "total_packages": null,
+      "shipping_cost": 123,
+      "expected_delivery_date": null,
+      "delivered_date": null,
+      "courier_id": "90bf9116e4e3f7bde9a3126eee94fdfc:6572bd36f776d275e9ed7f6ae158fc0d",
+      "updated_at": "2025-06-07T11:13:16.000000Z",
+      "created_at": "2025-06-07T11:13:16.000000Z",
+      "shipment_id": "a064d99b09b70fa238933578ae21705d:150d1b70a14fdb9e1d9d31abdba51d60"
+    }
+  ]
+}</pre>
+
+                    <h3>COLLECTION Sync <span class="premium">(Premium Feature)</span></h3>
+                    <p>
+                        <strong>COLLECTION</strong> pushes collection data to your system:
+                    </p>
+                    <pre>{
+  "collection": [
+    {
+      "uuid": "persistent id",
+      "shipment_id": "f3aa4b812d0a02528205748ee4a46dc4:62bba2b2371d1e33b29ebbdb423fb1b5",
+      "company_id": "8215f8ce67880398e3ddb90a974c6d20:01949dc604decb5b10124c0890cb5643",
+      "courier_id": "5d17582671cbda281d91bec9cbc910a4:ae5b40fdd66009aaa6e1398cfc78f121",
+      "collection_number": "RM62111",
+      "total_weight": 0,
+      "total_packages": 0,
+      "updated_at": "2025-06-07T11:11:04.000000Z",
+      "created_at": "2025-06-07T11:11:04.000000Z",
+      "collection_id": "82e2059b74fe6f534f76e7acc1d5f1c1:e5ad34ade3852610e5a5da36a9b912d2",
+      "shipment": {
+        "shipment_id": "13659742cae82ab09d4447985c0b5701:59e70a6a89626addff0c840f6b9a2c52",
+        "uuid": "persistent id",
+        "manifest_no": "kmklklmlklkm",
+        "origin": "4234234234",
+        "destination": "4234234234",
+        "delivered_date": "2025-10-08T00:00:00.000Z",
+        "expected_delivery_date": "2025-10-08T00:00:00.000Z",
+        "created_at": "2025-10-08T23:03:28.000Z",
+        "status": "RECEIVED AT ORIGIN",
+        "created_by": 1
+      }
+    }
+  ]
+}</pre>
+
+                    <div class="info-box">
+                        <strong><i class="bi bi-code-slash"></i> PHP Webhook Handler Example</strong>
+                        <pre class="example mt-2">
+&lt;?php
+// Expected token
+$expectedToken = "YOUR_SECRET_TOKEN";
+
+// Get headers
+$headers = getallheaders();
+
+// Check Authorization header
+if (!isset($headers['Authorization'])) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Missing Authorization header']);
+    exit;
+}
+
+// Extract Bearer token
+$authHeader = $headers['Authorization'];
+if (!preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Invalid Authorization format']);
+    exit;
+}
+
+$token = $matches[1];
+
+// Validate token
+if ($token !== $expectedToken) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Invalid token']);
+    exit;
+}
+
+// Read raw JSON input
+$input = file_get_contents('php://input');
+$data = json_decode($input, true);
+
+// Handle different sync types
+if (isset($data['prealerts'])) {
+    // Handle PreAlert webhook
+    foreach ($data['prealerts'] as $prealert) {
+        $tracking = $prealert['tracking_no'] ?? null;
+        $merchant = $prealert['merchant'] ?? null;
+        $status = $prealert['status'] ?? null;
+        $matchScore = $prealert['match_score'] ?? null;
+        
+        // Example processing for pre-alerts
+        error_log("PreAlert: $tracking | Merchant: $merchant | Status: $status | Match: $matchScore%");
+        
+        // Store in your database or process accordingly
+        // INSERT INTO prealerts (tracking_no, merchant, status, match_score) VALUES (...)
+    }
+} elseif (isset($data['packages'])) {
+    // Handle Package webhook
+    foreach ($data['packages'] as $package) {
+        $tracking = $package['tracking_number'] ?? null;
+        $consignee = $package['consignee'] ?? null;
+        $status = $package['status'] ?? null;
+        
+        error_log("Package: $tracking | Consignee: $consignee | Status: $status");
+    }
+} elseif (isset($data['courier'])) {
+    // Handle Courier webhook
+    foreach ($data['courier'] as $courier) {
+        $name = $courier['name'] ?? null;
+        $code = $courier['code'] ?? null;
+        
+        error_log("Courier: $name | Code: $code");
+    }
+}
+
+// Success response
+echo json_encode(['success' => true]);
+?&gt;
+</pre>
+                    </div>
+
+                    <div class="info-box">
+                        <strong><i class="bi bi-node-plus"></i> Node.js Webhook Handler Example</strong>
+                        <pre class="example mt-2">
+const express = require('express');
+const app = express();
+app.use(express.json());
+
+const EXPECTED_TOKEN = 'YOUR_SECRET_TOKEN';
+
+// Webhook endpoint
+app.post('/webhook', (req, res) => {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Missing Authorization header' });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    
+    if (token !== EXPECTED_TOKEN) {
+        return res.status(403).json({ error: 'Invalid token' });
+    }
+    
+    const data = req.body;
+    
+    // Handle PreAlert webhook
+    if (data.prealerts) {
+        data.prealerts.forEach(prealert => {
+            console.log(`PreAlert: ${prealert.tracking_no}`);
+            console.log(`  Merchant: ${prealert.merchant}`);
+            console.log(`  Status: ${prealert.status}`);
+            console.log(`  Match Score: ${prealert.match_score}%`);
+            
+            // Store in your database
+            // await db.prealerts.create({ ...prealert });
+        });
+    }
+    
+    // Handle Package webhook
+    if (data.packages) {
+        data.packages.forEach(pkg => {
+            console.log(`Package: ${pkg.tracking_number}`);
+        });
+    }
+    
+    res.json({ success: true });
+});
+
+app.listen(3000, () => {
+    console.log('Webhook server running on port 3000');
+});
+</pre>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm rounded-4 p-4 mt-4">
+                    <h4 class="mb-3"><i class="bi bi-plug"></i> Configure Webhook</h4>
+                    
+                    <div class="mb-3">
+                        <label for="syncType" class="form-label"><i class="bi bi-arrow-repeat"></i> Sync Type</label>
+                        <select id="syncType" class="form-select">
+                            <option value="CONSIGNEE">CONSIGNEE</option>
+                            <option value="PACKAGE">PACKAGE</option>
+                            <option value="PREALERT">PREALERT</option>
+                            <option value="COURIER">COURIER</option>
+                            <option value="KEY">KEY</option>
+                            <% if(setting && setting.is_premium){ %>
+                            <option value="SHIPMENT">SHIPMENT</option>
+                            <option value="COLLECTION">COLLECTION</option>
+                            <% }; %>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="link" class="form-label"><i class="bi bi-link-45deg"></i> <span id="label">Webhook URL</span></label>
+                        <input type="text" id="link" class="form-control" placeholder="https://your-domain.com/webhook-endpoint" />
+                        <small class="text-muted">The system will send POST requests to this URL with the data payload</small>
+                    </div>
+
+                    <button class="btn btn-success" onclick="createCourierSync()">
+                        <i class="bi bi-plus-circle"></i> Create Webhook Sync
+                    </button>
+
+                    <h2 class="mt-4"><i class="bi bi-file-earmark-code"></i> Response</h2>
+                    <pre id="response">Waiting for request...</pre>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script>
+            const hooks = <%- JSON.stringify(hooks) %>
+            var links = {};
+            
+            function showAlert(message, type = 'success') {
+                const alertDiv = document.getElementById('alertMessage');
+                alertDiv.className = `alert alert-${type} show`;
+                alertDiv.textContent = message;
+                setTimeout(() => {
+                    alertDiv.classList.remove('show');
+                }, 5000);
+            }
+            
+            $(function(){
+                hooks.forEach(function(item){
+                    links[item.synctype] = item.link;
+                });
+                $("#syncType").change(function(ev){
+                    var val = $(this).val();
+                    if(links[val]){
+                        $("#link").val(links[val]);
+                    } else {
+                        $("#link").val('');
+                    }
+                    
+                    $('#label').text("Webhook URL");
+                    if(val == 'KEY'){
+                        $('#label').text("API Key");
+                    }
+                    
+                    // Show helpful hints for different sync types
+                    if(val == 'PREALERT'){
+                        $('#link').attr('placeholder', 'https://your-domain.com/prealert-webhook');
+                        showAlert('PreAlert webhooks will send tracking data, match scores, and status updates', 'info');
+                    } else if(val == 'PACKAGE'){
+                        $('#link').attr('placeholder', 'https://your-domain.com/package-webhook');
+                    } else if(val == 'CONSIGNEE'){
+                        $('#link').attr('placeholder', 'https://your-domain.com/consignee-webhook');
+                    } else if(val == 'COURIER'){
+                        $('#link').attr('placeholder', 'https://your-domain.com/courier-webhook');
+                    }
+                });
+                $("#syncType").trigger("change");
+            });
+            
+            async function createCourierSync() {
+                const synctype = document.getElementById('syncType').value;
+                const link = document.getElementById('link').value;
+                
+                if (!link && synctype !== 'KEY') {
+                    showAlert('Please enter a webhook URL', 'danger');
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/courier-sync', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({synctype, link})
+                    });
+
+                    const data = await res.json();
+                    links[synctype] = link;
+                    document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+                    
+                    if (res.ok) {
+                        showAlert(`${synctype} webhook created successfully!`, 'success');
+                    } else {
+                        showAlert(data.error || 'Failed to create webhook', 'danger');
+                    }
+                } catch (err) {
+                    document.getElementById('response').textContent = `Error: ${err.message}`;
+                    showAlert(`Error: ${err.message}`, 'danger');
+                }
+            }
+        </script>
+    </body>
+</html>

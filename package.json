@@ -1,0 +1,37 @@
+{
+    "name": "realtime",
+    "version": "1.0.0",
+    "description": "Realtime Open Socket Api",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "nodemon index.js"
+    },
+    "author": "Christopher Thomas",
+    "license": "ISC",
+    "dependencies": {
+        "axios": "^1.9.0",
+        "body-parser": "^1.20.3",
+        "crypto": "^1.0.1",
+        "dotenv": "^16.5.0",
+        "ejs": "^3.1.10",
+        "express": "^4.21.2",
+        "express-rate-limit": "^7.5.0",
+        "express-session": "^1.18.1",
+        "express-validator": "^6.2.0",
+        "fs": "^0.0.1-security",
+        "ioredis": "^4.14.1",
+        "jsonwebtoken": "^8.5.1",
+        "mysql2": "^3.10.3",
+        "pg": "^7.12.1",
+        "redis": "^2.8.0",
+        "sequelize": "^6.37.7",
+        "socket.io": "^2.3.0",
+        "socket.io-emitter": "^3.1.1",
+        "socket.io-redis": "^5.2.0",
+        "sparkles": "^1.0.1"
+    },
+    "devDependencies": {
+        "nodemon": "^1.19.4"
+    }
+}

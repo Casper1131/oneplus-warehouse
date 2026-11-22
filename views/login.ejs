@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign In</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" type="image/png" href="https://warehouse.onepluscourierja.com/images/favicon/favicon-32x32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="https://warehouse.onepluscourierja.com/images/favicon/favicon-16x16.png" sizes="16x16" />
+
+  <!-- Add jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <div class="container d-flex align-items-center justify-content-center vh-100">
+    <div class="card p-4 shadow" style="width: 360px;">
+      <p class="text-muted mb-4"><h3>API Playground</h3></p>
+      <h3 class="text-start mb-0">Sign In</h3>
+      <p class="text-muted mb-4">Hi welcome!</p>
+      <div style="text-align:center;width:100%">
+        <img src="https://warehouse.onepluscourierja.com/images/logo.png" width="60px" style="margin:auto 0px" />
+      </div>
+      <form id="loginForm">
+        <div class="mb-3">
+          <label for="email" class="form-label fw-semibold">Email</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            name="email"
+            placeholder="Email"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <label for="password" class="form-label fw-semibold mb-0">Password</label>
+            <a href="https://warehouse.onepluscourierja.com" class="text-danger small"
+              >Forgot password?</a
+            >
+          </div>
+          <input
+            type="password"
+            class="form-control"
+            id="password"
+            name="password"
+            placeholder="Password"
+            required
+          />
+        </div>
+
+        <button type="submit" class="btn btn-danger w-100">Sign In</button>
+      </form>
+      <div id="errorMessage" class="text-danger mt-3" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $('#loginForm').submit(function (e) {
+        e.preventDefault(); // prevent the default form submit
+
+        const email = $('#email').val();
+        const password = $('#password').val();
+
+        // Clear any previous error
+        $('#errorMessage').hide().text('');
+
+        $.ajax({
+          url: '/login', // your API login endpoint
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ email: email, password: password }),
+          success: function (response) {
+            // Assuming your API returns { token: 'JWT_TOKEN_HERE' }
+            if (response.token) {
+              // Save JWT token to localStorage
+              localStorage.setItem('jwt_token', response.token);
+
+              // Redirect or load authenticated page here
+               window.location.href = '/dashboard'; // example redirect
+            } else {
+              $('#errorMessage').show().text('No token received.');
+            }
+          },
+          error: function (xhr) {
+            const errMsg = xhr.responseJSON?.message || 'Login failed';
+            $('#errorMessage').show().text(errMsg);
+          },
+        });
+      });
+    });
+  </script>
+</body>
+</html>
